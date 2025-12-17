@@ -4,13 +4,32 @@ import { supabaseService } from "../../../lib/supabaseServer";
 import AskAiPanel from "./ui";
 
 export default async function DealPage({ params }: { params: Promise<{ id: string }> }) {
+  const userId = getUserIdOrThrow();
   const { id: dealId } = await params;
   const sb = supabaseService();
-  const dealId = params.id;
 
-  const { data: deal } = await sb.from("deals").select("*").eq("id", dealId).eq("user_id", userId).single();
-  const { data: activities } = await sb.from("activities").select("*").eq("deal_id", dealId).eq("user_id", userId).order("occurred_at", { ascending: false }).limit(40);
-  const { data: tasks } = await sb.from("tasks").select("*").eq("deal_id", dealId).eq("user_id", userId).order("created_at", { ascending: false }).limit(30);
+  const { data: deal } = await sb
+    .from("deals")
+    .select("*")
+    .eq("id", dealId)
+    .eq("user_id", userId)
+    .single();
+
+  const { data: activities } = await sb
+    .from("activities")
+    .select("*")
+    .eq("deal_id", dealId)
+    .eq("user_id", userId)
+    .order("occurred_at", { ascending: false })
+    .limit(40);
+
+  const { data: tasks } = await sb
+    .from("tasks")
+    .select("*")
+    .eq("deal_id", dealId)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(30);
 
   if (!deal) return (<><Nav /><div className="card">Deal not found.</div></>);
 
