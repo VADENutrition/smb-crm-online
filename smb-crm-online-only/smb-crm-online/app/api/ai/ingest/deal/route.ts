@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { supabaseService } from "../../../../lib/supabaseServer";
+import { supabaseService } from "@/lib/supabaseServer";
 import OpenAI from "openai";
-import { upsertMemory } from "../../../../lib/crm/memory";
+import { upsertMemory } from "@/lib/crm/memory";
 
 export async function POST(req: NextRequest) {
   const uid = cookies().get("uid")?.value;
