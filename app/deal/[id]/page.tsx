@@ -3,8 +3,8 @@ import { getUserIdOrThrow } from "../../../lib/auth";
 import { supabaseService } from "../../../lib/supabaseServer";
 import AskAiPanel from "./ui";
 
-export default async function DealPage({ params }: { params: { id: string } }) {
-  const userId = getUserIdOrThrow();
+export default async function DealPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: dealId } = await params;
   const sb = supabaseService();
   const dealId = params.id;
 
