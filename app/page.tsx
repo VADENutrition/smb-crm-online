@@ -4,7 +4,7 @@ export default function Home() {
       <h2 style={{marginTop:0}}>SMB CRM (Online-only)</h2>
       <div className="small">Sign in with Google (Supabase Auth). Then go to Pipeline.</div>
       <div style={{height:12}} />
-      <a className="btn" href="/api/auth/login">Sign in with Google</a>
+      <a className="btn" href="/api/auth/login" target="_self" rel="noreferrer">Sign in with Google</a>
       <div style={{height:10}} />
       <div className="small">Then connect Gmail/Calendar in Settings to sync label <b>Leads</b>.</div>
     </div>
