@@ -2,22 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAnon } from "@/lib/supabaseServer";
 
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  if (!code) return NextResponse.redirect(new URL("/", req.nextUrl.origin));
-
   const sb = supabaseAnon();
-  const { data, error } = await sb.auth.exchangeCodeForSession(code);
-  if (error || !data.session?.user?.id) return NextResponse.redirect(new URL("/", req.nextUrl.origin));
 
-  const res = NextResponse.redirect(new URL("/pipeline", req.nextUrl.origin));
-  res.cookies.set("uid", data.session.user.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: req.nextUrl.protocol === "https:",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7
+  // Always use the current origin so we never accidentally bounce to another app domain.
+  const origin = req.nextUrl.origin;
+  const redirectTo = `${origin}/api/auth/oauth-callback`;
+
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo }
   });
 
-  return res;
+  if (error || !data?.url) {
+    // Show the error in the browser instead of “click does nothing”
+    return NextResponse.json(
+      { error: error?.message || "No OAuth URL returned", origin, redirectTo },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.redirect(data.url);
 }
