@@ -1,10 +1,31 @@
-export default function AuthCallback() {
+"use client";
+
+import { useEffect } from "react";
+import { supabaseAnon } from "@/lib/supabaseServer";
+
+export default function AuthCallbackPage() {
+  useEffect(() => {
+    (async () => {
+      // Supabase can read the hash fragment client-side and set its session.
+      const sb = supabaseAnon();
+      const { data, error } = await sb.auth.getSession();
+
+      // If session exists, send user to pipeline.
+      if (data?.session && !error) {
+        window.location.replace("/pipeline");
+        return;
+      }
+
+      // If session isn’t established yet, try to parse/refresh and then redirect.
+      await sb.auth.refreshSession();
+      window.location.replace("/pipeline");
+    })();
+  }, []);
+
   return (
-    <div className="card">
-      <h2 style={{marginTop:0}}>Signed in</h2>
-      <div className="small">Return to the app.</div>
-      <div style={{height:10}} />
-      <a className="btn" href="/pipeline">Go to Pipeline</a>
+    <div className="card" style={{ maxWidth: 560, margin: "80px auto" }}>
+      <h2 style={{ marginTop: 0 }}>Signing you in…</h2>
+      <div className="small">Completing Google sign-in and redirecting.</div>
     </div>
   );
 }
