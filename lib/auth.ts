@@ -1,12 +1,18 @@
-import { cookies } from "next/headers";
+import { supabaseService } from "@/lib/supabaseServer";
 
 /**
- * Next.js 15+: cookies() is async in many server contexts.
- * Use getUserIdOrThrow() as async.
+ * Server-side auth:
+ * Read the currently signed-in Supabase user using the service role client.
+ * This avoids relying on a custom "uid" cookie.
  */
 export async function getUserIdOrThrow(): Promise<string> {
-  const cookieStore = await cookies();
-  const uid = cookieStore.get("uid")?.value;
-  if (!uid) throw new Error("Not authenticated");
-  return uid;
+  const sb = supabaseService();
+
+  // Supabase will read its auth cookies from the request automatically in Next.js runtime
+  const { data, error } = await sb.auth.getUser();
+
+  const userId = data?.user?.id;
+  if (error || !userId) throw new Error("Not authenticated");
+
+  return userId;
 }
